@@ -2,9 +2,10 @@
 #include <complex>
 #include "Bitmap.h"
 #include "Mandelbrot.h"
+#include "Zoom.h"
 
-Mandelbrot::Mandelbrot(Bitmap &bmp, double s, double x_trans, double y_trans) :
-            _pBmp(&bmp), _scale(s), _x_trans(x_trans), _y_trans(y_trans) {}
+Mandelbrot::Mandelbrot(Bitmap &bmp, const Zoom &zoom) :
+                    _pBmp(&bmp), _scale(zoom.scale), _trans(zoom.translate) {}
 
 void Mandelbrot::draw()
 {
@@ -18,9 +19,10 @@ void Mandelbrot::draw()
     for(int y = 0; y < _pBmp->height(); ++y)
     {
 
-      double real_part = (x - width/2.0) / _scale + _x_trans;
-      double image_part = (y - height/2.0) / _scale + _y_trans;
-      const std::complex<double> c{real_part , image_part};
+      double real_part = (x - width/2.0) / _scale;
+      double image_part = (y - height/2.0) / _scale;
+      std::complex<double> c{real_part , image_part};
+      c += _trans;
 
       int v_iter = cTest(c);
       ++histogram[v_iter];

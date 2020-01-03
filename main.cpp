@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Bitmap.cpp"
 #include "Mandelbrot.cpp"
+#include "Zoom_List.cpp"
 
 using std::cout;
 using std::endl;
@@ -12,7 +13,10 @@ int main()
   Bitmap bitmap(WIDTH, HEIGHT);
 
   double scale = std::min(WIDTH, HEIGHT) / 2.3;
-  Mandelbrot mandelbrot(bitmap, scale, -0.5, 0);
+  Zoom_List zooms;
+  zooms.push({-0.5, 0}, scale);
+
+  Mandelbrot mandelbrot(bitmap, zooms.top());
   mandelbrot.draw();
   
   if(mandelbrot.write("test.bmp"))
