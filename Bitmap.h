@@ -3,9 +3,10 @@
 
 #include <string>
 #include <cstdint>
+#include "BMP_FILE_HEADER.h"
+#include "BMP_INFO_HEADER.h"
 
 using std::uint8_t;
-using std::uint16_t;
 using std::uint32_t;
 
 class Bitmap
@@ -18,9 +19,8 @@ public:
   Bitmap(uint32_t width, uint32_t height);
   bool write(const std::string &filename);
   void setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_t blue);
-  uint32_t width() { return _width; }
-  uint32_t height() {return _height; }
-  virtual ~Bitmap() {}
+  uint32_t width();
+  uint32_t height();
 };
 
 #endif

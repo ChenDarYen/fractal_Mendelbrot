@@ -1,5 +1,4 @@
 #include "Zoom_List.h"
-#include "Zoom.h"
 
 void Zoom_List::push(const Zoom &zoom)
 {

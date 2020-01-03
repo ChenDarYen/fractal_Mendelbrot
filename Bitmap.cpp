@@ -1,7 +1,4 @@
-
 #include "Bitmap.h"
-#include "BMP_FILE_HEADER.h"
-#include "BMP_INFO_HEADER.h"
 #include <fstream>
 
 Bitmap::Bitmap(uint32_t w, uint32_t h) : 
@@ -45,3 +42,7 @@ void Bitmap::setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_
   *pPixel++ = green;
   *pPixel = red;
 }
+
+uint32_t Bitmap::width() { return _width; }
+
+uint32_t Bitmap::height() { return _height; }

@@ -3,9 +3,8 @@
 
 #include <vector>
 #include <complex>
+#include "Zoom.h"
 
-
-class Zoom;
 class Zoom_List
 {
 public:
