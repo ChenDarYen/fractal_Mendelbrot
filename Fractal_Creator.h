@@ -13,10 +13,10 @@ public:
   void addZoom(const Zoom &zoom);
   void addZoom(std::complex<double> translate, double scale);
   void delZoom();
-  void draw();
   bool writeBmp(const std::string &fileName);
 
 private:
+  void draw();
   Bitmap *_pBmp;
   Zoom_List _zooms;
   Mandelbrot _fractal;

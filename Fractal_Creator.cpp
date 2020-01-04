@@ -11,6 +11,12 @@ void Fractal_Creator::addZoom(std::complex<double> translate, double scale)
 
 void Fractal_Creator::delZoom() { _zooms.pop(); }
 
+bool Fractal_Creator::writeBmp(const std::string &fileName)
+{
+  draw();
+  return _pBmp->write(fileName);
+}
+
 void Fractal_Creator::draw()
 {
   const int width = _pBmp->width();
@@ -56,9 +62,4 @@ void Fractal_Creator::draw()
       }
     }
   }
-}
-
-bool Fractal_Creator::writeBmp(const std::string &fileName)
-{
-  return _pBmp->write(fileName);
 }

@@ -16,9 +16,8 @@ int main()
   Fractal_Creator fractal(bitmap);
 
   fractal.addZoom({-0.5, 0}, scale);
-  fractal.addZoom({-0.5, 0.5}, scale*6);
+  fractal.addZoom({-0.5, 0.6}, scale*6);
   
-  fractal.draw();
   if (fractal.writeBmp("test.bmp"))
     cout << "finished." << endl;
 
