@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstdint>
+#include "RGB.h"
 #include "BMP_FILE_HEADER.h"
 #include "BMP_INFO_HEADER.h"
 
@@ -19,6 +20,7 @@ public:
   Bitmap(uint32_t width, uint32_t height);
   bool write(const std::string &filename);
   void setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_t blue);
+  void setPixel(uint32_t x, uint32_t y, const RGB &color);
   uint32_t width();
   uint32_t height();
 };

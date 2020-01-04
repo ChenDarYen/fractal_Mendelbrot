@@ -38,9 +38,14 @@ void Bitmap::setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_
   uint8_t *pPixel = _pPixels.get();
   pPixel += _width*(y*3) + x*3;
 
-  *pPixel++ = blue;
-  *pPixel++ = green;
-  *pPixel = red;
+  pPixel[0] = blue;
+  pPixel[1] = green;
+  pPixel[2]= red;
+}
+
+void Bitmap::setPixel(uint32_t x, uint32_t y, const RGB &color)
+{
+  setPixel(x, y, color.r, color.g, color.b);
 }
 
 uint32_t Bitmap::width() { return _width; }
