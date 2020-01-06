@@ -1,28 +1,16 @@
 #include <stdexcept>
 #include "Fractal_Creator.h"
 
-Fractal_Creator::Fractal_Creator(int width, int height) :
-    _width(width), _height(height),
+// public
+
+Fractal_Creator::Fractal_Creator(int width, int height, double min_scale, int times) :
+    _width(width), _height(height), _min_scale(min_scale), _deepening_times(times),
     _pBmp(std::make_shared<Bitmap>(width, height)),
     _pScreen(std::make_shared<Screen>(width, height)),
     _pPixels(std::make_unique<uint8_t[]>(width * height * 3)),
     _fractal(std::make_unique<int[]>(width * height)),
     _current_z(std::make_unique<std::complex<double>[]>(width * height))
 {
-  _histogram[Mandelbrot::_maxRepeat] = _width * _height;
-}
-
-Fractal_Creator::Fractal_Creator(std::shared_ptr<Screen> pScreen) : _pScreen(pScreen)
-{
-  int width, height;
-  SDL_GetWindowSize(pScreen->_window, &width, &height);
-  _width = width;
-  _height = height;
-  _pBmp = std::make_shared<Bitmap>(width, height);
-  _pPixels = std::make_unique<uint8_t[]>(width * height * 3);
-  _fractal = std::make_unique<int[]>(width * height);
-  _current_z = std::make_unique<std::complex<double>[]>(width * height);
-
   _histogram[Mandelbrot::_maxRepeat] = _width * _height;
 }
 
@@ -40,13 +28,13 @@ void Fractal_Creator::addZoom(std::complex<double> translate, double scale)
 
 void Fractal_Creator::delZoom() { _zooms.pop(); }
 
-Zoom &Fractal_Creator::topZoom() { return _zooms.top(); }
-
-void Fractal_Creator::updateScreenInDepth(int depth)
+void Fractal_Creator::updateScreen()
 {
-  _draw(depth - _depth);
-  _depth = depth;
-  _pScreen->update(reinterpret_cast<char *>(_pPixels.get()));
+  if(_curr_times != _deepening_times)
+  {
+    _updateScreenInDepth(Mandelbrot::_maxRepeat * (_curr_times + 1.0) / _deepening_times);
+    ++_curr_times;
+  }
 }
 
 bool Fractal_Creator::writeBmp(const std::string &fileName)
@@ -58,12 +46,32 @@ std::complex<double> Fractal_Creator::coordinateTrans(int x, int y)
 {
   const Zoom &zoom = _zooms.top();
   double real_part = (x - _width / 2.0) / zoom.scale;
-  double image_part = (y - _height / 2.0) / zoom.scale;
+  double image_part = -(y - _height / 2.0) / zoom.scale;
 
   return std::complex<double>{real_part, image_part} + zoom.translate;
 }
 
-void Fractal_Creator::reset()
+std::complex<double> Fractal_Creator::orign()
+{
+  return _zooms.top().translate;
+}
+
+void Fractal_Creator::transform(const std::complex<double> &trans, double ratio)
+{
+  std::complex<double> o = _zooms.top().translate + trans;
+  double scale = _zooms.top().scale * ratio;
+  scale = std::max(scale, _min_scale);
+  addZoom(o, scale);
+  _reset();
+}
+
+int Fractal_Creator::width() { return _width; }
+
+int Fractal_Creator::height() { return _height; }
+
+// private
+
+void Fractal_Creator::_reset()
 {
   _histogram[Mandelbrot::_maxRepeat] = _width * _height;
   for(int i = 0; i < Mandelbrot::_maxRepeat; ++i)
@@ -76,7 +84,15 @@ void Fractal_Creator::reset()
     _pPixels[i * 3] = _pPixels[i * 3 + 1] = _pPixels[i * 3 + 2] = 0;
   }
 
-  _depth = 0;
+  _curr_depth = 0;
+  _curr_times = 0;
+}
+
+void Fractal_Creator::_updateScreenInDepth(int depth)
+{
+  _draw(depth - _curr_depth);
+  _curr_depth = depth;
+  _pScreen->update(reinterpret_cast<char *>(_pPixels.get()));
 }
 
 RGB Fractal_Creator::_color(int val_itr)
@@ -97,7 +113,7 @@ void Fractal_Creator::_draw(int increase_depth)
     {
       const int IDX = _width*y + x;
 
-      if(_fractal[IDX] >= _depth)
+      if(_fractal[IDX] >= _curr_depth)
       {
         auto c = coordinateTrans(x, y);
 
@@ -105,7 +121,7 @@ void Fractal_Creator::_draw(int increase_depth)
         Mandelbrot::cTest(_current_z[IDX], c, increase_depth, &increase_iter, &_current_z[IDX]);
         _fractal[IDX] += increase_iter;
 
-        if(_fractal[IDX] < increase_depth + _depth)
+        if(_fractal[IDX] < increase_depth + _curr_depth)
         {
           --_histogram[Mandelbrot::_maxRepeat];
           ++_histogram[_fractal[IDX]];
@@ -116,7 +132,7 @@ void Fractal_Creator::_draw(int increase_depth)
 
   int total = _width*_height - _histogram[Mandelbrot::_maxRepeat];
   int count = 0, level = 0;
-  for(int i = 0; i < increase_depth + _depth; ++i)
+  for(int i = 0; i < increase_depth + _curr_depth; ++i)
   {
     double percentile = static_cast<double>(count) / total;
     while(_gradients[level+1].first < percentile)
@@ -133,7 +149,7 @@ void Fractal_Creator::_draw(int increase_depth)
     for(int y = 0; y < _height; ++y)
     {
       int v_iter = _fractal[_width*y + x];
-      if(v_iter < increase_depth + _depth)
+      if(v_iter < increase_depth + _curr_depth)
         _setPixel(x, y, _color(v_iter));
     }
   }

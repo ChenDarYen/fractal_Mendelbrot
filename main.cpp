@@ -9,7 +9,6 @@
 #include "Mandelbrot.cpp"
 #include "Fractal_Creator.cpp"
 
-using std::cout;
 using std::cerr;
 using std::endl;
 using std::uint32_t;
@@ -21,10 +20,9 @@ int main()
 
   try
   {
-    Fractal_Creator fractal_creator(WIDTH, HEIGHT);
+    Fractal_Creator fractal_creator(WIDTH, HEIGHT, STD_SCALE * .8, 500);
 
     fractal_creator.addZoom({-0.5, 0}, STD_SCALE);
-    // fractal_creator.addZoom({-0.52, 0.62}, STD_SCALE * 32);
 
     fractal_creator.addGrad(0, RGB(0, 0, 40));
     fractal_creator.addGrad(0.4, RGB(0, 0, 50));
@@ -36,19 +34,12 @@ int main()
     fractal_creator.addGrad(0.999, RGB(180, 100, 100));
     fractal_creator.addGrad(1, RGB(200, 0, 0));
 
-    
-
     SDL_Event event;
     bool quit = false;
-    int depth = Mandelbrot::_maxRepeat / 200;
 
     while(!quit)
     {
-      if(depth <= Mandelbrot::_maxRepeat)
-      {
-        fractal_creator.updateScreenInDepth(depth);
-        depth += Mandelbrot::_maxRepeat / 200;
-      }
+      fractal_creator.updateScreen();
 
       while(SDL_PollEvent(&event))
       {
@@ -57,17 +48,19 @@ int main()
           case SDL_QUIT:
             quit = true;
             break;
-          
-          case SDL_MOUSEBUTTONUP:
-            int x, y;
-            SDL_GetMouseState(&x, &y);
 
-            double scale = fractal_creator.topZoom().scale * 2;
-            std::complex<double> o = fractal_creator.coordinateTrans(x, y);
-            
-            fractal_creator.addZoom(o, scale);
-            fractal_creator.reset();
-            depth = Mandelbrot::_maxRepeat / 200;
+          case SDL_MOUSEBUTTONUP:
+            {
+              int x, y;
+              SDL_GetMouseState(&x, &y);
+              std::complex<double> trans = fractal_creator.coordinateTrans(x, y) - fractal_creator.orign();
+              fractal_creator.transform(trans, 2);
+            }
+            break;
+
+          case SDL_MOUSEWHEEL:
+            fractal_creator.transform({0, 0}, event.wheel.y > 0 ? 1.2 : .8);
+            break;
         }
       }
     }

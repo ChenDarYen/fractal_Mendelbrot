@@ -14,26 +14,32 @@
 class Fractal_Creator
 {
 public:
-  Fractal_Creator(int width, int height);
-  Fractal_Creator(std::shared_ptr<Screen> pScreen);
+  Fractal_Creator(int width, int height, double min_scale, int times);
   void addGrad(double percentile, const RGB &color);
   void addZoom(const Zoom &zoom);
   void addZoom(std::complex<double> translate, double scale);
   void delZoom();
-  Zoom &topZoom();
-  void updateScreenInDepth(int depth);
+  void updateScreen();
   bool writeBmp(const std::string &fileName);
   std::complex<double> coordinateTrans(int x, int y);
-  void reset();
+  std::complex<double> orign();
+  void transform(const std::complex<double> &trans, double ratio);
+  int width();
+  int height();
 
 private:
+  void _reset();
+  void _updateScreenInDepth(int depth);
   RGB _color(int val_itr);
   void _draw(int increase_depth);
   void _setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_t blue);
   void _setPixel(uint32_t x, uint32_t y, const RGB &color);
   int _width{0};
   int _height{0};
-  int _depth{0};
+  int _curr_depth{0};
+  int _deepening_times{0};
+  int _curr_times{0};
+  double _min_scale{0};
   std::shared_ptr<Bitmap> _pBmp{nullptr};
   std::shared_ptr<Screen> _pScreen{nullptr};
   std::unique_ptr<uint8_t[]> _pPixels{nullptr};
