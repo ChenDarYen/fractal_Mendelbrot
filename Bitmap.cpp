@@ -5,7 +5,7 @@ Bitmap::Bitmap(uint32_t w, uint32_t h) :
             _width(w), _height(h),
             _pPixels(std::make_unique<uint8_t[]>(w * h * 3)) {}
 
-bool Bitmap::write(const std::string &fileName)
+bool Bitmap::write(const std::string &fileName, const char *pPixels)
 {
   BmpFileHeader fileHeader;
   BmpInfoHeader infoHeader;
@@ -23,7 +23,7 @@ bool Bitmap::write(const std::string &fileName)
 
   file.write(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
   file.write(reinterpret_cast<char*>(&infoHeader), sizeof(infoHeader));
-  file.write(reinterpret_cast<char*>(_pPixels.get()), _width * _height * 3u);
+  file.write(pPixels, _width * _height * 3u);
 
   file.close();
 
@@ -31,21 +31,6 @@ bool Bitmap::write(const std::string &fileName)
     return false;
 
   return true;
-}
-
-void Bitmap::setPixel(uint32_t x, uint32_t y, uint8_t red, uint8_t green, uint8_t blue)
-{
-  uint8_t *pPixel = _pPixels.get();
-  pPixel += _width*(y*3) + x*3;
-
-  pPixel[0] = blue;
-  pPixel[1] = green;
-  pPixel[2]= red;
-}
-
-void Bitmap::setPixel(uint32_t x, uint32_t y, const RGB &color)
-{
-  setPixel(x, y, color.r, color.g, color.b);
 }
 
 uint32_t Bitmap::width() { return _width; }

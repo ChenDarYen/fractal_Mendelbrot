@@ -7,9 +7,9 @@
 class Mandelbrot
 {
 public:
-  static int cTest(std::complex<double> c);
+  static void cTest(std::complex<double> init_val, std::complex<double> c, int depth, int *pV_iter, std::complex<double> *pZ);
   static const int _escapeRadius = 2;
-  static const int _maxReapet = 1000;
+  static const int _maxRepeat = 1000;
 };
 
 #endif
