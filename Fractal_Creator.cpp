@@ -69,6 +69,8 @@ int Fractal_Creator::width() { return _width; }
 
 int Fractal_Creator::height() { return _height; }
 
+bool Fractal_Creator::done() { return _curr_times == _deepening_times; }
+
 // private
 
 void Fractal_Creator::_reset()

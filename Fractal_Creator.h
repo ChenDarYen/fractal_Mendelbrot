@@ -26,6 +26,7 @@ public:
   void transform(const std::complex<double> &trans, double ratio);
   int width();
   int height();
+  bool done();
 
 private:
   void _reset();

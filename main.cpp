@@ -8,6 +8,7 @@
 #include "Zoom_List.cpp"
 #include "Mandelbrot.cpp"
 #include "Fractal_Creator.cpp"
+#include "Fractal_Event.cpp"
 
 using std::cerr;
 using std::endl;
@@ -35,33 +36,20 @@ int main()
     fractal_creator.addGrad(1, RGB(200, 0, 0));
 
     SDL_Event event;
+    Fractal_Event fractal_event(fractal_creator, event);
     bool quit = false;
 
     while(!quit)
     {
       fractal_creator.updateScreen();
 
-      while(SDL_PollEvent(&event))
+      while(SDL_PollEvent(&fractal_event))
+        quit = fractal_event.deal();
+
+      if(fractal_creator.done())
       {
-        switch(event.type)
-        {
-          case SDL_QUIT:
-            quit = true;
-            break;
-
-          case SDL_MOUSEBUTTONUP:
-            {
-              int x, y;
-              SDL_GetMouseState(&x, &y);
-              std::complex<double> trans = fractal_creator.coordinateTrans(x, y) - fractal_creator.orign();
-              fractal_creator.transform(trans, 2);
-            }
-            break;
-
-          case SDL_MOUSEWHEEL:
-            fractal_creator.transform({0, 0}, event.wheel.y > 0 ? 1.2 : .8);
-            break;
-        }
+        SDL_WaitEvent(&fractal_event);
+        quit = fractal_event.deal();
       }
     }
   }
